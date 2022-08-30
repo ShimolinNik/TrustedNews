@@ -1,0 +1,26 @@
+{
+    "name": "TrustedNews",
+    "version": "1.0.0",
+    "description": "This is the extension for the TrustedNews project done as a bachelor project.",
+    "manifest_version": 3,
+    "author": "Nikita Shimolin",
+    "action":{
+      "default_icon": "verify.png",
+      "default_title": "TrustedNews"
+    },
+    "icons": {
+      "16": "verification.png",
+      "48": "verification.png",
+      "128": "verification.png"
+    },
+    "permissions": [
+      "tabs",
+      "storage"
+    ],
+    "host_permissions": [
+      "http://localhost:3000/*"
+    ],
+    "background": {
+      "service_worker":"background.js"
+    }
+}
