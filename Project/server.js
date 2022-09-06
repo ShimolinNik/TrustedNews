@@ -1,6 +1,4 @@
-//const mysql = require('mysql');
 const express = require('express');
-//const session = require('express-session');
 const path = require('path');
 
 //For Blockchain
@@ -40,15 +38,9 @@ const connection = mysql.createConnection({
 
 const app = express();
 
-/*app.use(session({
-	secret: 'secret',
-	resave: true,
-	saveUninitialized: true
-}));*/
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-//app.use(express.static(path.join(__dirname, 'static')));
 
 
 app.get('/deploy', (req, res) => {
@@ -65,10 +57,11 @@ app.get('/deploy', (req, res) => {
 app.post('/create', (req,res) => {
 	console.log("In create");
 	//const newCommentObject = req.body;
-	const newCommentObject={articleName:'Something', articleText: 'hashofthisText', comment: 'The first one'};
+	const newCommentObject={articleName:'Somethingggg', articleText: 'hashofthisText', comment: 'The first one'};
 	Comment.save(newCommentObject, function (err, objectSaved) {
 		if (!err) {
 			res.json(objectSaved);
+			res.send(objectSaved);
 		} else {
 			res.send(err)
 		}
@@ -76,25 +69,30 @@ app.post('/create', (req,res) => {
 })
 
 app.get('/find', (req,res) => {
-    Comment.find(function (err, allObjects) {
-        if (!err) {
-            res.json(allObjects);
-        } else {
-            res.send(err)
-        }
+	Comment.find(function (err, allObjects) {
+		if (!err) {
+			res.json(allObjects);
+		}
+		else {
+			res.send(err)
+    }
 });
 })
+
+app.get('/findId', (req,res) => {
+	Comment.findById('Something', function (err, record) {
+	   if (!err) {
+	       console.log(record);
+	   }
+	});
+})
+
+
 
 // http://localhost:3000/
 app.get('/', function(request, response) {
 	// Render login template
 	response.sendFile(path.join(__dirname + '/login.html'));
-});
-
-app.get('/lol', function(request, response) {
-	// Render login template
-	console.log("lol")
-	//response.sendFile(path.join(__dirname + '/login.html'));
 });
 
 // http://localhost:3000/auth
@@ -113,18 +111,11 @@ app.post('/auth', function(request, response) {
 			// If the account exists
 			if (results.length > 0) {
 				// Authenticate the user
-				//request.session.loggedin = true;
-				//request.session.username = username;
-        //request.session.UID = results[0]["RowDataPacket"]["UID"];
-        //console.log(request.session);
-        console.log(results[0].UID);
 				let uid  = results[0].UID;
 				connection.query('SELECT * FROM unige WHERE unige.UID = ? UNION SELECT * FROM hug WHERE hug.UID = ?;', [uid,uid], function(error, results, fields) {
 					let keys = [];
 					if (error) throw error;
 					if (results.length > 0) {
-						//console.log("Result1: ",results[0].proof);
-						console.log(results);
 						for (const element of results) {
 							keys.push([element.userKey,element.proof]);
 						}
@@ -132,9 +123,6 @@ app.post('/auth', function(request, response) {
 						response.end();
 					}
 				});
-				// Redirect to home page
-				//response.send({"UID":results[0].UID});
-				//response.redirect('/uid/'+results[0].UID);
 			} else {
 				response.send('Incorrect Username and/or Password!');
 				response.end();
@@ -143,23 +131,17 @@ app.post('/auth', function(request, response) {
 		});
 	} else {
 		response.send('Please enter Username and Password!');
-		console.log("Oh nooo");
 		response.end();
 	}
 });
 
-// http://localhost:3000/home
+// http://localhost:3000/uid/:uid
 app.get('/uid/:uid', function(request, response) {
-		// Output username
-		//response.send({"lol":'Welcome back, ' + request.session.username + '!'});
-		//req.query.tagId
 		let uid  = request.params.uid;
 		connection.query('SELECT * FROM unige WHERE unige.UID = ? UNION SELECT * FROM hug WHERE hug.UID = ?;', [uid,uid], function(error, results, fields) {
 			let keys = [];
 			if (error) throw error;
 			if (results.length > 0) {
-				//console.log("Result1: ",results[0].proof);
-				console.log(results);
 				for (const element of results) {
 					keys.push([element.userKey,element.proof]);
 				}
@@ -167,7 +149,7 @@ app.get('/uid/:uid', function(request, response) {
 				response.end();
 			}
 		});
-		//response.send({"UID":request.params.uid});
+
 });
 
 app.listen(3000);
